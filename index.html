@@ -1,1 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Estudos - SSA 2</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --primary: #3498db;
+            --primary-light: #ebf5fb;
+            --success: #2ecc71;
+            --success-light: #e8f8f5;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --border-color: #e2e8f0;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Dashboard de Estatísticas */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .stat-card .progress-bar-container {
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            height: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .stat-card .progress-bar {
+            background-color: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* Seção Principal */
+        .main-content {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Menu Lateral de Disciplinas */
+        .subjects-sidebar {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            height: fit-content;
+        }
+
+        .subjects-sidebar h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .subject-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 12px 15px;
+            background: none;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .subject-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .subject-btn.active {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        .subject-btn .badge {
+            background-color: rgba(0,0,0,0.05);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .subject-btn.active .badge {
+            background-color: rgba(213, 245, 227, 0.3);
+            color: white;
+        }
+
+        /* Conteúdos e Tabela */
+        .content-area {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .content-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background-color: #fafafa;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .counter-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .counter-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .counter-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .qty-input {
+            width: 45px;
+            text-align: center;
+            padding: 3px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .notes-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        .actions-footer {
+            margin-top: 25px;
+            text-align: right;
+        }
+
+        .btn-reset {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Rastreador de Estudos SSA 2</h1>
+            <p>Monitore seu progresso, acertos de questões e domine o edital da UPE</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <h3>Progresso Geral do Edital</h3>
+                <div class="value" id="global-progress-percent">0%</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;" id="global-progress-count">0 de 0 tópicos</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="global-progress-bar"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Total de Questões Feitas</h3>
+                <div class="value" id="total-questions">0</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Acertos: <span id="total-correct">0</span> (<span id="global-accuracy">0%</span>)</div>
+            </div>
+            <div class="stat-card">
+                <h3>Teoria Concluída</h3>
+                <div class="value" id="total-theory">0%</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;" id="theory-count">0 tópicos</div>
+            </div>
+            <div class="stat-card">
+                <h3>Revisões Feitas</h3>
+                <div class="value" id="total-revisions">0%</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;" id="revision-count">0 revisados</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="subjects-sidebar">
+                <h2>Disciplinas</h2>
+                <div id="subjects-list"></div>
+            </div>
+
+            <div class="content-area">
+                <div class="content-header">
+                    <h2 id="selected-subject-title">Selecione uma Disciplina</h2>
+                    <span id="subject-progress-badge" style="background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: 15px; font-weight: 600;">0%</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Conteúdo / Tópico</th>
+                                <th style="width: 15%;">Teoria</th>
+                                <th style="width: 15%;">Revisão</th>
+                                <th style="width: 20%;">Questões (Feitas / Acertos)</th>
+                                <th style="width: 20%;">Anotações / Dificuldades</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topics-table-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="actions-footer">
+                    <button class="btn-reset" onclick="resetAllData()">Limpar Todo o Progresso</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mapeamento referencial focado no SSA 2
+        const ssa2Data = {
+            "Física": [
+                "Termodinâmica (Leis, Ciclo de Carnot, Gases)",
+                "Óptica Geométrica (Reflexão, Lentes, Espelhos)",
+                "Ondulatória (MHS, Fenômenos Ondulatórios, Acústica)",
+                "Hidrostática (Pressão, Empuxo, Princípio de Pascal)"
+            ],
+            "Português e Literatura": [
+                "Realismo e Naturalismo (Contexto e Autores)",
+                "Parnasianismo e Simbolismo",
+                "Sintaxe do Período Composto (Coordenação/Subordinação)",
+                "Regência Verbal, Nominal e Uso da Crase",
+                "Interpretação Textual"
+            ],
+            "Matemática": [
+                "Funções Exponenciais e Logarítmicas",
+                "Trigonometria na Circunferência (Funções e Identidades)",
+                "Geometria Espacial (Prismas, Cilindros, Cones, Esferas)",
+                "Análise Combinatória e Probabilidade"
+            ],
+            "Química": [
+                "Cálculo Estequiométrico e Reações",
+                "Soluções (Concentrações, Diluição, Misturas)",
+                "Termoquímica (Entalpia e Lei de Hess)",
+                "Cinética e Equilíbrio Químico"
+            ],
+            "Biologia": [
+                "Fisiologia Humana (Digestório, Cardiorrespiratório, etc.)",
+                "Histologia Animal e Vegetal",
+                "Botânica (Anatomia e Fisiologia Vegetal)",
+                "Microbiologia e Doenças Humanas (Parasitologia)"
+            ],
+            "História": [
+                "Brasil Império (Primeiro Reinado, Regência, Segundo Reinado)",
+                "Século XIX na Europa (Industrialização e Imperialismo)",
+                "Primeira Guerra Mundial e Revolução Russa",
+                "Regimes Totalitários no Século XX"
+            ],
+            "Geografia": [
+                "Geografia Econômica e Globalização",
+                "Geopolítica Contemporânea (Blocos e Conflitos)",
+                "Urbanização e Dinâmica Demográfica do Brasil",
+                "Matrizes Energéticas e Impactos Ambientais"
+            ],
+            "Filosofia e Sociologia": [
+                "Filosofia Moderna (Racionalismo vs Empirismo)",
+                "Clássicos da Sociologia (Durkheim, Marx, Weber)",
+                "Cultura, Ideologia e Indústria Cultural"
+            ]
+        };
+
+        let userProgress = {};
+        let currentSubject = Object.keys(ssa2Data)[0];
+
+        function initStorage() {
+            const saved = localStorage.getItem('ssa2_progress_dashboard');
+            if (saved) {
+                userProgress = JSON.parse(saved);
+            } else {
+                for (let subject in ssa2Data) {
+                    userProgress[subject] = ssa2Data[subject].map(topic => ({
+                        name: topic, theory: false, revision: false, qDone: 0, qCorrect: 0, notes: ""
+                    }));
+                }
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('ssa2_progress_dashboard', JSON.stringify(userProgress));
+            updateDashboardMetrics();
+        }
+
+        function initApp() {
+            initStorage();
+            renderSubjects();
+            selectSubject(currentSubject);
+        }
+
+        function renderSubjects() {
+            const listContainer = document.getElementById('subjects-list');
+            listContainer.innerHTML = '';
+            Object.keys(ssa2Data).forEach(subject => {
+                const btn = document.createElement('button');
+                btn.className = `subject-btn ${subject === currentSubject ? 'active' : ''}`;
+                btn.id = `btn-${btoa(encodeURIComponent(subject))}`;
+                btn.onclick = () => selectSubject(subject);
+                
+                const topics = userProgress[subject];
+                const completed = topics.filter(t => t.theory && t.revision).length;
+                const percent = topics.length ? Math.round((completed / topics.length) * 100) : 0;
+
+                btn.innerHTML = `<span>${subject}</span><span class="badge">${percent}%</span>`;
+                listContainer.appendChild(btn);
+            });
+        }
+
+        function selectSubject(subject) {
+            currentSubject = subject;
+            document.querySelectorAll('.subject-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`btn-${btoa(encodeURIComponent(subject))}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            document.getElementById('selected-subject-title').innerText = subject;
+            renderTopics(subject);
+            updateSubjectProgressBadge(subject);
+        }
+
+        function updateSubjectProgressBadge(subject) {
+            const topics = userProgress[subject];
+            const completedCount = topics.filter(t => t.theory || t.revision || t.qDone > 0).length;
+            const percent = topics.length ? Math.round((completedCount / topics.length) * 100) : 0;
+            document.getElementById('subject-progress-badge').innerText = `${percent}% Estudado`;
+        }
+
+        function renderTopics(subject) {
+            const tbody = document.getElementById('topics-table-body');
+            tbody.innerHTML = '';
+            userProgress[subject].forEach((topic, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 500;">${topic.name}</td>
+                    <td><label class="checkbox-container"><input type="checkbox" ${topic.theory ? 'checked' : ''} onchange="toggleField('${subject}', ${index}, 'theory')">Lido</label></td>
+                    <td><label class="checkbox-container"><input type="checkbox" ${topic.revision ? 'checked' : ''} onchange="toggleField('${subject}', ${index}, 'revision')">Revisado</label></td>
+                    <td>
+                        <div style="display:flex; flex-direction:column; gap:5px;">
+                            <div class="counter-group">
+                                <span style="font-size:0.8rem; width:45px; color:var(--text-muted)">Feitas:</span>
+                                <button class="counter-btn" onclick="changeQty('${subject}', ${index}, 'qDone', -1)">-</button>
+                                <input type="number" class="qty-input" value="${topic.qDone}" onchange="inputQty('${subject}', ${index}, 'qDone', this.value)">
+                                <button class="counter-btn" onclick="changeQty('${subject}', ${index}, 'qDone', 1)">+</button>
+                            </div>
+                            <div class="counter-group">
+                                <span style="font-size:0.8rem; width:45px; color:var(--text-muted)">Acertos:</span>
+                                <button class="counter-btn" onclick="changeQty('${subject}', ${index}, 'qCorrect', -1)">-</button>
+                                <input type="number" class="qty-input" value="${topic.qCorrect}" onchange="inputQty('${subject}', ${index}, 'qCorrect', this.value)">
+                                <button class="counter-btn" onclick="changeQty('${subject}', ${index}, 'qCorrect', 1)">+</button>
+                            </div>
+                        </div>
+                    </td>
+                    <td><textarea class="notes-input" onchange="updateNotes('${subject}', ${index}, this.value)">${topic.notes || ''}</textarea></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleField(subject, index, field) {
+            userProgress[subject][index][field] = !userProgress[subject][index][field];
+            saveData();
+            renderSubjects();
+        }
+
+        function changeQty(subject, index, field, amount) {
+            let val = parseInt(userProgress[subject][index][field]) || 0;
+            val = Math.max(0, val + amount);
+            userProgress[subject][index][field] = val;
+            saveData();
+            renderTopics(subject);
+        }
+
+        function inputQty(subject, index, field, value) {
+            let val = Math.max(0, parseInt(value) || 0);
+            userProgress[subject][index][field] = val;
+            saveData();
+            renderTopics(subject);
+        }
+
+        function updateNotes(subject, index, val) {
+            userProgress[subject][index].notes = val;
+            saveData();
+        }
+
+        function updateDashboardMetrics() {
+            let totalTopics = 0, coveredTheory = 0, coveredRevision = 0, totalQ = 0, totalC = 0;
+            for (let subject in userProgress) {
+                userProgress[subject].forEach(topic => {
+                    totalTopics++;
+                    if (topic.theory) coveredTheory++;
+                    if (topic.revision) coveredRevision++;
+                    totalQ += (parseInt(topic.qDone) || 0);
+                    totalC += (parseInt(topic.qCorrect) || 0);
+                });
+            }
+            const theoryPercent = totalTopics ? Math.round((coveredTheory / totalTopics) * 100) : 0;
+            const revisionPercent = totalTopics ? Math.round((coveredRevision / totalTopics) * 100) : 0;
+            const mainProgressPercent = totalTopics ? Math.round(((coveredTheory + coveredRevision) / (totalTopics * 2)) * 100) : 0;
+            const accuracy = totalQ ? Math.round((totalC / totalQ) * 100) : 0;
+
+            document.getElementById('global-progress-percent').innerText = `${mainProgressPercent}%`;
+            document.getElementById('global-progress-bar').style.width = `${mainProgressPercent}%`;
+            document.getElementById('global-progress-count').innerText = `${coveredTheory} de ${totalTopics} tópicos lidos`;
+            document.getElementById('total-questions').innerText = totalQ;
+            document.getElementById('total-correct').innerText = totalC;
+            document.getElementById('global-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('total-theory').innerText = `${theoryPercent}%`;
+            document.getElementById('total-revisions').innerText = `${revisionPercent}%`;
+        }
+
+        function resetAllData() {
+            if(confirm("Deseja mesmo resetar todo seu progresso de estudos do SSA2?")) {
+                localStorage.removeItem('ssa2_progress_dashboard');
+                initStorage();
+                renderSubjects();
+                selectSubject(currentSubject);
+            }
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
